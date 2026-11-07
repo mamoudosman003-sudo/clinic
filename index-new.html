@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مركز العلاج الطبيعي</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#E3E9F4;--surface:#FFFFFF;--ink:#1F1B4D;--muted:#5F6185;--line:#D3D8EA;--accent:#3D35B5;--accent-ink:#FFFFFF;--soft:#DFDDF7;--warm:#E8583C;--warn:#C2362B}
@@ -45,23 +44,45 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .stat b{display:block;font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}
 #kComm{color:var(--warm)}
 #kClinic{color:var(--accent)}
-.card{width:min(100%,400px);background:#fff;color:#1F1B4D;border:1px solid #D3D8EA;border-radius:18px;overflow:hidden}
-.cband{background:#2A2370;color:#fff;padding:12px 18px;font-size:13px;font-weight:600;display:flex;justify-content:space-between;gap:8px;box-shadow:inset 0 -4px 0 #F26B4F}
-.cbody{display:grid;grid-template-columns:1fr 112px;gap:14px;padding:18px;align-items:center}
-.card h2{margin:0 0 6px;font-size:20px}
-.kv{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#5F6185;border-top:1px dashed #D3D8EA;padding:6px 0}
-.kv b{color:#1F1B4D;font-variant-numeric:tabular-nums}
-.kv b.owe{color:#C2362B}
-.segs{display:flex;gap:4px;margin-top:10px}
-.segs i{flex:1;height:6px;border-radius:3px;background:#ECEBFA}
+
+/* ===== الكارت ===== */
+.card{width:min(100%,440px);background:#fff;color:#1F1B4D;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(31,27,77,.12);border:1px solid #E4E2F0}
+.chead{background:linear-gradient(135deg,#2A2370,#3D35B5);color:#fff;padding:16px 20px}
+.chead small{opacity:.8;font-size:12px}
+.chead h2{margin:4px 0 0;font-size:22px}
+.ccode{padding:18px 20px 6px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ccode span{color:#6B6A8A;font-size:13px}
+.ccode b{font-size:36px;letter-spacing:2px;direction:ltr;font-variant-numeric:tabular-nums}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 20px}
+.cgrid div{background:#F6F5FB;border-radius:12px;padding:10px 12px}
+.cgrid .wide{grid-column:1 / -1}
+.cgrid span{display:block;color:#6B6A8A;font-size:12px}
+.cgrid b{font-size:16px;font-variant-numeric:tabular-nums}
+.cfin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 20px 12px}
+.cfin div{border-radius:12px;padding:10px 6px;text-align:center;background:#EEF7F4}
+.cfin div.owe{background:#FBE3DC}
+.cfin span{display:block;font-size:12px;color:#6B6A8A}
+.cfin b{font-size:16px;font-variant-numeric:tabular-nums}
+.cfin div.owe b{color:#C2362B}
+.cprog{padding:4px 20px 18px}
+.cprog p{margin:0 0 8px;font-size:13px;color:#6B6A8A}
+.segs{display:flex;flex-wrap:wrap;gap:4px}
+.segs i{width:14px;height:14px;border-radius:4px;background:#ECEBFA}
 .segs i.on{background:#3D35B5}
-.qr svg{width:100%;height:auto;display:block}
+@page{margin:8mm}
+@media print{body *{visibility:hidden}#printCard,#printCard *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printCard{position:absolute;inset:0 auto auto 0;border:0;box-shadow:none}}
+@media (max-width:640px){.ccode b{font-size:30px}}
+
+/* ===== المربعات (الدفعات والجلسات) ===== */
+.bx{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.bx>div{border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:130px;max-width:170px;background:#fff;font-size:13px}
+.bx b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.bx small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bx .acts{display:flex;gap:4px;margin-top:6px}
+.bx .acts button{padding:4px 8px;font-size:12px}
 ul.list{list-style:none;padding:0;margin:0 0 12px}
 ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
 .pkg{background:#F6F5FB;border:1px dashed var(--line);border-radius:12px;padding:14px;margin-top:14px}
-@page{margin:8mm}
-@media print{body *{visibility:hidden}#printCard,#printCard *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printCard{position:absolute;inset:0 auto auto 0;border:0}}
-@media (max-width:640px){.cbody{grid-template-columns:1fr 96px}}
 </style>
 </head>
 <body>
@@ -87,7 +108,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
     <button class="ghost" id="logout">خروج</button>
   </header>
 
-    <nav class="tabs">
+  <nav class="tabs">
     <button data-tab="patients" aria-current="page">المرضى</button>
     <button data-tab="sessions">الجلسات</button>
     <button data-tab="accounts" class="adminOnly">الحسابات</button>
@@ -126,7 +147,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
       </div>
       <div id="cardWrap"></div>
 
-      <h3 style="margin-top:16px">الدفعات</h3>
+      <h3 style="margin-top:18px">الدفعات</h3>
       <form id="payForm" class="row writeOnly">
         <label>المبلغ<input id="payAmt" type="number" min="1" step="any" required></label>
         <label>التاريخ<input id="payDate" type="date" required></label>
@@ -134,10 +155,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
         <button type="submit">تسجيل الدفعة</button>
       </form>
       <p id="payMsg" class="msg hidden"></p>
-      <div class="scroll"><table>
-        <thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th><th class="writeOnly"></th></tr></thead>
-        <tbody id="payRows"></tbody>
-      </table></div>
+      <div id="payBoxes" class="bx"></div>
 
       <div class="row writeOnly" style="margin-top:14px">
         <label>التليفون<input id="dPhone" inputmode="tel"></label>
@@ -158,7 +176,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
         </div>
       </div>
 
-      <h3 style="margin-top:16px">المواعيد</h3>
+      <h3 style="margin-top:18px">المواعيد</h3>
       <div class="row writeOnly">
         <label>ميعاد جديد<input id="apptIn" type="datetime-local"></label>
         <button type="button" id="apptAdd">إضافة ميعاد</button>
@@ -166,7 +184,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
       <ul id="apptList" class="list"></ul>
 
       <h3>الجلسات</h3>
-      <div class="scroll"><table><tbody id="detSess"></tbody></table></div>
+      <div id="sessBoxes" class="bx"></div>
     </div>
   </section>
 
@@ -219,7 +237,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
     </div>
   </section>
 
-   <section id="tab-doctors" class="tab hidden">
+  <section id="tab-doctors" class="tab hidden">
     <div class="panel">
       <h3>الدكاترة</h3>
       <p class="sub">النسبة من 30 لـ 45٪. تغييرها بيأثر على الجلسات الجاية بس، والجلسات القديمة بتفضل بنسبتها وقت التسجيل.</p>
@@ -268,7 +286,6 @@ let dbDoneCounts = {}, dbDoctorReport = [], dbPatientBilling = [];
 const say = (el, text, bad) => { el.textContent = text; el.classList.remove('hidden'); el.classList.toggle('err', !!bad); el.classList.toggle('ok', !bad); };
 const show = v => { $('#loginView').classList.toggle('hidden', v !== 'login'); $('#appView').classList.toggle('hidden', v !== 'app'); };
 
-// عدد الجلسات المتعملة في الباقة الحالية (من السيرفر)
 const doneOf = pid => dbDoneCounts[pid] || 0;
 const docById = id => doctors.find(d => d.id === id) || { name: '-', percent: 0 };
 const upcoming = pid => appts.filter(a => a.patient_id === pid && new Date(a.starts_at) >= new Date());
@@ -283,7 +300,7 @@ function findPatient(term) {
     || null;
 }
 
-function showTab(n) {
+  function showTab(n) {
   $$('.tab').forEach(s => s.classList.toggle('hidden', s.id !== 'tab-' + n));
   $$('.tabs button').forEach(b => b.dataset.tab === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   if (n === 'sessions') { renderSessDoctors(); loadToday(); }
@@ -311,7 +328,6 @@ async function enter() {
   await loadAll();
 }
 
-// تحميل الأساسيات بس (المرضى والدكاترة والمواعيد وعدد الجلسات)
 async function loadAll() {
   const [p, d, a, dc] = await Promise.all([
     sb.from('patients').select('id,card_code,name,phone,session_price,total_sessions,package_start,created_at').order('created_at', { ascending: false }),
@@ -332,7 +348,15 @@ async function loadAll() {
   if (current) await renderDetail();
 }
 
-  // الحسابات: الأرقام الجاهزة من السيرفر بس
+async function loadToday() {
+  const { data, error } = await sb.from('sessions')
+    .select('id,patient_id,doctor_id,session_date,price,doctor_share')
+    .eq('session_date', today());
+  if (error) return alert('تعذر تحميل جلسات النهاردة: ' + error.message);
+  sessions = data || [];
+  renderToday();
+}
+
 async function loadAccounts() {
   const m = $('#month').value || today().slice(0, 7);
   const monthStart = m + '-01';
@@ -385,7 +409,6 @@ async function renderDetail() {
   if (!p) { $('#detail').classList.add('hidden'); current = null; return; }
   $('#detail').classList.remove('hidden');
 
-  // الرصيد والدفعات والجلسات بتتجاب من السيرفر لما يتفتح الكارت
   const [bal, pays, sess] = await Promise.all([
     sb.rpc('patient_balance', { p_patient: p.id }),
     sb.from('payments').select('id,amount,paid_on,note,created_at').eq('patient_id', p.id).order('paid_on', { ascending: false }).order('created_at', { ascending: false }),
@@ -400,57 +423,63 @@ async function renderDetail() {
   const done = doneOf(p.id), left = Math.max(0, p.total_sessions - done);
   const segs = Array.from({ length: p.total_sessions }, (_, i) => `<i class="${i < done ? 'on' : ''}"></i>`).join('');
   const up = upcoming(p.id);
+
   $('#cardWrap').innerHTML = `<div class="card" id="printCard">
-      <div class="cband"><span>${esc($('#clinicName').textContent)}</span><span dir="ltr">${esc(p.card_code)}</span></div>
-      <div class="cbody">
-        <div>
-          <h2>${esc(p.name)}</h2>
-          <div class="kv"><span>التليفون</span><b dir="ltr">${esc(p.phone || '-')}</b></div>
-          <div class="kv"><span>سعر الجلسة</span><b>${money(p.session_price)}</b></div>
-          <div class="kv"><span>المتبقي من الجلسات</span><b>${left} من ${p.total_sessions}</b></div>
-          <div class="kv"><span>المدفوع</span><b>${money(paid)}</b></div>
-          <div class="kv"><span>مستحق على المريض</span><b class="${owed > 0 ? 'owe' : ''}">${money(owed)}</b></div>
-          <div class="kv"><span>رصيد معاه</span><b>${money(credit)}</b></div>
-          <div class="kv"><span>الميعاد الجاي</span><b>${up[0] ? fmtDT(up[0].starts_at) : '-'}</b></div>
-          <div class="segs">${segs}</div>
-        </div>
-        <div class="qr" id="qr"></div>
+      <div class="chead">
+        <small>${esc($('#clinicName').textContent)}</small>
+        <h2>${esc(p.name)}</h2>
+      </div>
+      <div class="ccode">
+        <span>كود الكارت</span>
+        <b>${esc(p.card_code)}</b>
+      </div>
+      <div class="cgrid">
+        <div><span>التليفون</span><b dir="ltr">${esc(p.phone || '-')}</b></div>
+        <div><span>سعر الجلسة</span><b>${money(p.session_price)}</b></div>
+        <div class="wide"><span>الميعاد الجاي</span><b>${up[0] ? fmtDT(up[0].starts_at) : 'مفيش ميعاد'}</b></div>
+      </div>
+      <div class="cfin">
+        <div><span>المدفوع</span><b>${money(paid)}</b></div>
+        <div class="${owed > 0 ? 'owe' : ''}"><span>المستحق</span><b>${money(owed)}</b></div>
+        <div><span>الرصيد</span><b>${money(credit)}</b></div>
+      </div>
+      <div class="cprog">
+        <p>الجلسات: المتبقي ${left} من ${p.total_sessions}</p>
+        <div class="segs">${segs}</div>
       </div>
     </div>`;
-  try {
-    const qr = qrcode(0, 'M');
-    qr.addData(p.card_code);
-    qr.make();
-    $('#qr').innerHTML = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
-  } catch (e) {
-    $('#qr').textContent = p.card_code;
-  }
 
   $('#payDate').value = $('#payDate').value || today();
-  $('#payRows').innerHTML = (pays.data || []).map(x => `<tr>
-      <td>${fmtD(x.paid_on)}</td>
-      <td>${money(x.amount)}</td>
-      <td>${esc(x.note || '-')}</td>
-      <td class="writeOnly"><button class="ghost" data-pedit="${x.id}" data-amt="${x.amount}">تعديل</button> <button class="bad" data-pdel="${x.id}">مسح</button></td>
-    </tr>`).join('') || '<tr><td colspan="4">لسه مفيش دفعات</td></tr>';
+  $('#payBoxes').innerHTML = (pays.data || []).map(x => `<div>
+      <b>${money(x.amount)}</b>
+      <small>${fmtD(x.paid_on)}</small>
+      <small>${esc(x.note || '')}</small>
+      <div class="acts writeOnly">
+        <button class="ghost" data-pedit="${x.id}" data-amt="${x.amount}">تعديل</button>
+        <button class="bad" data-pdel="${x.id}">مسح</button>
+      </div>
+    </div>`).join('') || '<p class="msg">لسه مفيش دفعات</p>';
+
+  $('#sessBoxes').innerHTML = (sess.data || []).map(s => `<div>
+      <b>${money(s.price)}</b>
+      <small>${fmtD(s.session_date)}</small>
+      <small>${esc(docById(s.doctor_id).name)}</small>
+    </div>`).join('') || '<p class="msg">لسه مفيش جلسات</p>';
 
   $('#dPhone').value = p.phone || '';
   $('#npPrice').value = p.session_price;
   $('#npTotal').value = 10;
   $('#apptList').innerHTML = up.map(a => `<li>${fmtDT(a.starts_at)}</li>`).join('') || '<li>مفيش مواعيد جاية</li>';
-  $('#detSess').innerHTML = (sess.data || []).map(s =>
-    `<tr><td>${fmtD(s.session_date)}</td><td>${esc(docById(s.doctor_id).name)}</td><td>${money(s.price)}</td></tr>`
-  ).join('') || '<tr><td>لسه مفيش جلسات</td></tr>';
-}
+  }
 
-function renderSessDoctors() {
+  function renderSessDoctors() {
   const cur = $('#sDoc').value;
   $('#sDoc').innerHTML = doctors.filter(d => d.active).map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')
     || '<option value="">ضيف دكتور الأول</option>';
   if (cur) $('#sDoc').value = cur;
   if (!$('#sDate').value) $('#sDate').value = today();
   showSessInfo();
-                                                  }
+}
 
 function showSessInfo() {
   const p = patients.find(x => x.id === sessPatient);
@@ -506,7 +535,6 @@ async function updDoctor(id, patch) {
   await loadAll();
 }
 
-// ===== الدخول والخروج =====
 $('#loginForm').onsubmit = async e => {
   e.preventDefault();
   $('#loginMsg').classList.add('hidden');
@@ -526,7 +554,6 @@ $('#logout').onclick = async () => {
 
 $$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
 
-// ===== المرضى =====
 $('#q').oninput = () => { shown = PAGE; renderPatients(); };
 $('#moreBtn').onclick = () => { shown += PAGE; renderPatients(); };
 
@@ -559,7 +586,6 @@ $('#dSavePhone').onclick = async () => {
   await loadAll();
 };
 
-  // ===== الدفعات =====
 $('#payForm').onsubmit = async e => {
   e.preventDefault();
   if (!current) return;
@@ -579,7 +605,7 @@ $('#payForm').onsubmit = async e => {
   await renderDetail();
 };
 
-$('#payRows').onclick = async e => {
+$('#payBoxes').onclick = async e => {
   const del = e.target.closest('[data-pdel]');
   const ed = e.target.closest('[data-pedit]');
   if (del) {
@@ -599,7 +625,6 @@ $('#payRows').onclick = async e => {
   }
 };
 
-// باقة جديدة: بتبدأ العد من الصفر بسعر وعدد جلسات جديدين
 $('#npBtn').onclick = async () => {
   const p = patients.find(x => x.id === current);
   if (!p) return;
@@ -612,7 +637,6 @@ $('#npBtn').onclick = async () => {
   await loadAll();
 };
 
-// زيادة جلسات في نفس الباقة
 $('#addSessBtn').onclick = async () => {
   const p = patients.find(x => x.id === current);
   if (!p) return;
@@ -639,13 +663,12 @@ $('#apptAdd').onclick = async () => {
 
 $('#printBtn').onclick = () => window.print();
 
-// ===== الجلسات =====
 $('#sFind').onclick = () => pickPatient($('#sScan').value);
 $('#sScan').onkeydown = e => {
   if (e.key === 'Enter') { e.preventDefault(); pickPatient($('#sScan').value); }
 };
 
-$('#sessForm').onsubmit = async e => {
+  $('#sessForm').onsubmit = async e => {
   e.preventDefault();
   const p = patients.find(x => x.id === sessPatient);
   if (!p) return say($('#sMsg'), 'اختار المريض الأول', true);
@@ -666,7 +689,6 @@ $('#sessForm').onsubmit = async e => {
   showSessInfo();
 };
 
-// ===== الدكاترة =====
 document.addEventListener('change', async e => {
   const el = e.target;
   if (el.dataset.dname) {
@@ -688,7 +710,7 @@ $('#docEdit').onclick = async e => {
   if (d) await updDoctor(d.id, { active: !d.active });
 };
 
-  $('#docForm').onsubmit = async e => {
+$('#docForm').onsubmit = async e => {
   e.preventDefault();
   const raw = +$('#dnPct').value, v = clamp(raw);
   const { error } = await sb.from('doctors').insert({ clinic_id: me.clinicId, name: $('#dnName').value.trim(), percent: v });
@@ -702,7 +724,6 @@ $('#docEdit').onclick = async e => {
 
 $('#month').onchange = loadAccounts;
 
-// ===== بدء التشغيل =====
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session) await enter(); else show('login');
@@ -710,4 +731,3 @@ $('#month').onchange = loadAccounts;
 </script>
 </body>
 </html>
-  
