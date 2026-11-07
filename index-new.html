@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#E3E9F4;--surface:#FFFFFF;--ink:#1F1B4D;--muted:#5F6185;--line:#D3D8EA;--accent:#3D35B5;--accent-ink:#FFFFFF;--soft:#DFDDF7;--warm:#E8583C;--warn:#C2362B}
+:root{--bg:#E3E9F4;--surface:#FFFFFF;--ink:#1F1B4D;--muted:#5F6185;--line:#D3D8EA;--accent:#3D35B5;--accent-ink:#FFFFFF;--soft:#DFDDF7;--warm:#E8583C;--warn:#C2362B;--ok:#1C7A5A}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);min-height:100vh;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.6}
 main{max-width:1040px;margin:0 auto;padding:24px 16px}
@@ -45,7 +45,28 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 #kComm{color:var(--warm)}
 #kClinic{color:var(--accent)}
 
-/* ===== الكارت ===== */
+/* الفلاتر والإجماليات */
+.fin{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.fin div{flex:1 1 180px;border-radius:12px;padding:10px 12px;background:#F6F5FB}
+.fin span{display:block;font-size:12px;color:var(--muted)}
+.fin b{font-size:18px;font-variant-numeric:tabular-nums}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters button{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.filters button.on{background:var(--soft);color:var(--accent);border-color:var(--accent)}
+.owe{color:var(--warn);font-weight:600}
+.cred{color:var(--ok);font-weight:600}
+.zero{color:var(--muted)}
+
+/* المربعات: 5 جنب بعض */
+.bx{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0 14px}
+.bx>div{border:1px solid var(--line);border-radius:10px;padding:6px 7px;background:#fff;font-size:12px;min-width:0}
+.bx b{display:block;font-size:13px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bx small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bx .acts{display:flex;gap:3px;margin-top:4px}
+.bx .acts button{padding:2px 5px;font-size:11px}
+.bx .none{grid-column:1/-1;color:var(--muted);font-size:14px;border:0;background:none;padding:6px 0}
+
+/* الكارت */
 .card{width:min(100%,440px);background:#fff;color:#1F1B4D;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(31,27,77,.12);border:1px solid #E4E2F0}
 .chead{background:linear-gradient(135deg,#2A2370,#3D35B5);color:#fff;padding:16px 20px}
 .chead small{opacity:.8;font-size:12px}
@@ -69,20 +90,14 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .segs{display:flex;flex-wrap:wrap;gap:4px}
 .segs i{width:14px;height:14px;border-radius:4px;background:#ECEBFA}
 .segs i.on{background:#3D35B5}
+.qr{display:none}
 @page{margin:8mm}
 @media print{body *{visibility:hidden}#printCard,#printCard *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printCard{position:absolute;inset:0 auto auto 0;border:0;box-shadow:none}}
-@media (max-width:640px){.ccode b{font-size:30px}}
+@media (max-width:640px){.ccode b{font-size:30px}.bx b{font-size:12px}}
 
-/* ===== المربعات (الدفعات والجلسات) ===== */
-.bx{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
-.bx>div{border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:130px;max-width:170px;background:#fff;font-size:13px}
-.bx b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
-.bx small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bx .acts{display:flex;gap:4px;margin-top:6px}
-.bx .acts button{padding:4px 8px;font-size:12px}
+.pkg{background:#F6F5FB;border:1px dashed var(--line);border-radius:12px;padding:14px;margin-top:14px}
 ul.list{list-style:none;padding:0;margin:0 0 12px}
 ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
-.pkg{background:#F6F5FB;border:1px dashed var(--line);border-radius:12px;padding:14px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -115,6 +130,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
     <button data-tab="doctors" class="adminOnly">الدكاترة</button>
   </nav>
 
+  
   <section id="tab-patients" class="tab">
     <div class="panel writeOnly">
       <h3>إضافة مريض</h3>
@@ -129,12 +145,20 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
     </div>
 
     <div class="panel">
+      <div class="fin">
+        <div><span>عليهم فلوس (المركز لازم يحصّلها)</span><b id="tOwe">0</b></div>
+        <div><span>رصيد عند المركز (فلوس المرضى)</span><b id="tCred">0</b></div>
+      </div>
       <div class="row" style="justify-content:space-between">
-        <h3 style="margin:0">المرضى</h3>
-        <input id="q" placeholder="ابحث بالاسم أو التليفون أو الكود" style="max-width:300px">
+        <div id="filters" class="filters">
+          <button data-f="all" class="on">الكل</button>
+          <button data-f="owe">عليهم فلوس</button>
+          <button data-f="credit">معاهم رصيد</button>
+        </div>
+        <input id="q" placeholder="ابحث بالاسم أو التليفون أو الكود" style="max-width:280px">
       </div>
       <div class="scroll"><table>
-        <thead><tr><th>الاسم</th><th>التليفون</th><th>كود الكارت</th><th>سعر الجلسة</th><th>المتبقي</th><th></th></tr></thead>
+        <thead><tr><th>الاسم</th><th>التليفون</th><th>الكود</th><th>سعر الجلسة</th><th>المتبقي</th><th>الحالة المالية</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
       <button class="ghost" id="moreBtn" hidden style="margin-top:10px">عرض المزيد</button>
@@ -146,6 +170,9 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
         <button class="ghost" id="printBtn">طباعة</button>
       </div>
       <div id="cardWrap"></div>
+
+      <h3 style="margin-top:18px">كشف الحساب</h3>
+      <div id="stmtBoxes" class="bx"></div>
 
       <h3 style="margin-top:18px">الدفعات</h3>
       <form id="payForm" class="row writeOnly">
@@ -182,9 +209,6 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
         <button type="button" id="apptAdd">إضافة ميعاد</button>
       </div>
       <ul id="apptList" class="list"></ul>
-
-      <h3>الجلسات</h3>
-      <div id="sessBoxes" class="bx"></div>
     </div>
   </section>
 
@@ -261,7 +285,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
 
 </main>
 
-<script>
+  <script>
 const SUPABASE_URL = 'https://stgovppudfwdrsrylpoo.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z292cHB1ZGZ3ZHJzcnlscG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5Nzc5NTgsImV4cCI6MjEwOTU1Mzk1OH0.0zZL0U33QyW4FlEAT5B6vT1p3Tn8pPUVO3tVIRI1nfE';
 
@@ -273,20 +297,21 @@ const pad = n => String(n).padStart(2, '0');
 const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const today = () => ymd(new Date());
 const money = n => (+n || 0).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ج.م';
-const fmtD = s => new Date(s + 'T00:00').toLocaleDateString('ar-EG', { dateStyle: 'medium' });
+const fmtD = s => new Date(s + 'T00:00').toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
 const fmtDT = s => new Date(s).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
 const clamp = raw => Math.min(45, Math.max(30, Math.round(raw || 30)));
 const ROLE = { admin: 'مدير', reception: 'استقبال', doctor: 'دكتور' };
 const PAGE = 50;
 
 let me = null, patients = [], doctors = [], sessions = [], appts = [], current = null, sessPatient = null;
-let shown = PAGE;
-let dbDoneCounts = {}, dbDoctorReport = [], dbPatientBilling = [];
+let shown = PAGE, filt = 'all';
+let dbDoneCounts = {}, dbBal = {}, dbDoctorReport = [], dbPatientBilling = [];
 
 const say = (el, text, bad) => { el.textContent = text; el.classList.remove('hidden'); el.classList.toggle('err', !!bad); el.classList.toggle('ok', !bad); };
 const show = v => { $('#loginView').classList.toggle('hidden', v !== 'login'); $('#appView').classList.toggle('hidden', v !== 'app'); };
 
 const doneOf = pid => dbDoneCounts[pid] || 0;
+const balOf = pid => dbBal[pid]?.balance || 0;
 const docById = id => doctors.find(d => d.id === id) || { name: '-', percent: 0 };
 const upcoming = pid => appts.filter(a => a.patient_id === pid && new Date(a.starts_at) >= new Date());
 
@@ -300,7 +325,7 @@ function findPatient(term) {
     || null;
 }
 
-  function showTab(n) {
+function showTab(n) {
   $$('.tab').forEach(s => s.classList.toggle('hidden', s.id !== 'tab-' + n));
   $$('.tabs button').forEach(b => b.dataset.tab === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   if (n === 'sessions') { renderSessDoctors(); loadToday(); }
@@ -329,19 +354,22 @@ async function enter() {
 }
 
 async function loadAll() {
-  const [p, d, a, dc] = await Promise.all([
+  const [p, d, a, dc, bl] = await Promise.all([
     sb.from('patients').select('id,card_code,name,phone,session_price,total_sessions,package_start,created_at').order('created_at', { ascending: false }),
     sb.from('doctors').select('id,name,percent,active').order('name'),
     sb.from('appointments').select('id,patient_id,starts_at').eq('status', 'scheduled').order('starts_at'),
-    sb.rpc('patient_done_counts')
+    sb.rpc('patient_done_counts'),
+    sb.rpc('patient_balances')
   ]);
-  const bad = [p, d, a, dc].find(x => x.error);
+  const bad = [p, d, a, dc, bl].find(x => x.error);
   if (bad) return alert('تعذر تحميل البيانات: ' + bad.error.message);
   patients = p.data || [];
   doctors = d.data || [];
   appts = a.data || [];
   dbDoneCounts = {};
   (dc.data || []).forEach(x => { dbDoneCounts[x.patient_id] = Number(x.done); });
+  dbBal = {};
+  (bl.data || []).forEach(x => { dbBal[x.patient_id] = { paid: Number(x.paid), used: Number(x.used), balance: Number(x.balance) }; });
   renderPatients();
   renderSessDoctors();
   renderDoctors();
@@ -382,19 +410,33 @@ async function loadAccounts() {
 
 function renderPatients() {
   const q = $('#q').value.trim();
-  const list = patients.filter(p => !q || p.name.includes(q) || (p.phone || '').includes(q) || p.card_code.includes(q.toUpperCase()));
+  let list = patients.filter(p => !q || p.name.includes(q) || (p.phone || '').includes(q) || p.card_code.includes(q.toUpperCase()));
+  if (filt === 'owe') list = list.filter(p => balOf(p.id) < 0);
+  if (filt === 'credit') list = list.filter(p => balOf(p.id) > 0);
+  list.sort((a, b) => balOf(a.id) - balOf(b.id));
+
+  let owe = 0, cred = 0;
+  patients.forEach(p => { const b = balOf(p.id); if (b < 0) owe += -b; else cred += b; });
+  $('#tOwe').textContent = money(owe);
+  $('#tCred').textContent = money(cred);
+
   const page = list.slice(0, shown);
   $('#rows').innerHTML = page.map(p => {
     const left = Math.max(0, p.total_sessions - doneOf(p.id));
+    const b = balOf(p.id);
+    const fin = b < 0 ? `<span class="owe">عليه ${money(-b)}</span>`
+              : b > 0 ? `<span class="cred">رصيد ${money(b)}</span>`
+              : `<span class="zero">صفر</span>`;
     return `<tr>
       <td>${esc(p.name)}</td>
       <td dir="ltr">${esc(p.phone || '-')}</td>
       <td dir="ltr">${esc(p.card_code)}</td>
       <td>${money(p.session_price)}</td>
-      <td>${left} من ${p.total_sessions} متبقي</td>
+      <td>${left} من ${p.total_sessions}</td>
+      <td>${fin}</td>
       <td><button class="ghost" data-open="${p.id}">الكارت</button></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6">لسه مفيش مرضى</td></tr>';
+  }).join('') || '<tr><td colspan="7">لسه مفيش مرضى</td></tr>';
   $('#moreBtn').hidden = list.length <= shown;
 }
 
@@ -404,17 +446,17 @@ function openPatient(id) {
   $('#detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-async function renderDetail() {
+    async function renderDetail() {
   const p = patients.find(x => x.id === current);
   if (!p) { $('#detail').classList.add('hidden'); current = null; return; }
   $('#detail').classList.remove('hidden');
 
-  const [bal, pays, sess] = await Promise.all([
+  const [bal, pays, st] = await Promise.all([
     sb.rpc('patient_balance', { p_patient: p.id }),
     sb.from('payments').select('id,amount,paid_on,note,created_at').eq('patient_id', p.id).order('paid_on', { ascending: false }).order('created_at', { ascending: false }),
-    sb.from('sessions').select('session_date,price,doctor_id').eq('patient_id', p.id).order('session_date', { ascending: false })
+    sb.rpc('patient_statement', { p_patient: p.id })
   ]);
-  if (bal.error || pays.error || sess.error) return alert('تعذر تحميل بيانات المريض');
+  if (bal.error || pays.error || st.error) return alert('تعذر تحميل بيانات المريض');
 
   const b = bal.data?.[0] || { paid: 0, used: 0, balance: 0 };
   const paid = Number(b.paid), balance = Number(b.balance);
@@ -449,30 +491,34 @@ async function renderDetail() {
       </div>
     </div>`;
 
+  $('#stmtBoxes').innerHTML = (st.data || []).map(x => {
+    const inn = Number(x.money_in) > 0;
+    return `<div>
+      <b class="${inn ? 'cred' : 'owe'}">${inn ? '+' : '-'} ${money(inn ? x.money_in : x.money_out)}</b>
+      <small>${fmtD(x.happened_on)}</small>
+      <small>${esc(x.kind)}: ${esc(x.label)}</small>
+      <small>الرصيد: ${money(x.running)}</small>
+    </div>`;
+  }).join('') || '<p class="none">لسه مفيش حركات</p>';
+
   $('#payDate').value = $('#payDate').value || today();
   $('#payBoxes').innerHTML = (pays.data || []).map(x => `<div>
       <b>${money(x.amount)}</b>
       <small>${fmtD(x.paid_on)}</small>
-      <small>${esc(x.note || '')}</small>
+      <small>${esc(x.note || '-')}</small>
       <div class="acts writeOnly">
         <button class="ghost" data-pedit="${x.id}" data-amt="${x.amount}">تعديل</button>
         <button class="bad" data-pdel="${x.id}">مسح</button>
       </div>
-    </div>`).join('') || '<p class="msg">لسه مفيش دفعات</p>';
-
-  $('#sessBoxes').innerHTML = (sess.data || []).map(s => `<div>
-      <b>${money(s.price)}</b>
-      <small>${fmtD(s.session_date)}</small>
-      <small>${esc(docById(s.doctor_id).name)}</small>
-    </div>`).join('') || '<p class="msg">لسه مفيش جلسات</p>';
+    </div>`).join('') || '<p class="none">لسه مفيش دفعات</p>';
 
   $('#dPhone').value = p.phone || '';
   $('#npPrice').value = p.session_price;
   $('#npTotal').value = 10;
   $('#apptList').innerHTML = up.map(a => `<li>${fmtDT(a.starts_at)}</li>`).join('') || '<li>مفيش مواعيد جاية</li>';
-  }
+}
 
-  function renderSessDoctors() {
+function renderSessDoctors() {
   const cur = $('#sDoc').value;
   $('#sDoc').innerHTML = doctors.filter(d => d.active).map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')
     || '<option value="">ضيف دكتور الأول</option>';
@@ -535,7 +581,7 @@ async function updDoctor(id, patch) {
   await loadAll();
 }
 
-$('#loginForm').onsubmit = async e => {
+    $('#loginForm').onsubmit = async e => {
   e.preventDefault();
   $('#loginMsg').classList.add('hidden');
   const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#pass').value });
@@ -547,12 +593,21 @@ $('#loginForm').onsubmit = async e => {
 $('#logout').onclick = async () => {
   await sb.auth.signOut();
   me = null; patients = []; doctors = []; sessions = []; appts = []; current = null; sessPatient = null;
-  dbDoneCounts = {}; dbDoctorReport = []; dbPatientBilling = [];
+  dbDoneCounts = {}; dbBal = {}; dbDoctorReport = []; dbPatientBilling = [];
   $('#detail').classList.add('hidden');
   show('login');
 };
 
 $$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+$('#filters').onclick = e => {
+  const b = e.target.closest('[data-f]');
+  if (!b) return;
+  filt = b.dataset.f;
+  $$('#filters button').forEach(x => x.classList.toggle('on', x === b));
+  shown = PAGE;
+  renderPatients();
+};
 
 $('#q').oninput = () => { shown = PAGE; renderPatients(); };
 $('#moreBtn').onclick = () => { shown += PAGE; renderPatients(); };
@@ -602,7 +657,7 @@ $('#payForm').onsubmit = async e => {
   say($('#payMsg'), 'اتسجلت الدفعة', false);
   $('#payAmt').value = '';
   $('#payNote').value = '';
-  await renderDetail();
+  await loadAll();
 };
 
 $('#payBoxes').onclick = async e => {
@@ -612,7 +667,7 @@ $('#payBoxes').onclick = async e => {
     if (!confirm('تمسح الدفعة دي؟')) return;
     const { error } = await sb.from('payments').delete().eq('id', del.dataset.pdel);
     if (error) return alert('ماتمسحش: ' + error.message);
-    return renderDetail();
+    return loadAll();
   }
   if (ed) {
     const v = prompt('المبلغ الجديد:', ed.dataset.amt);
@@ -621,7 +676,7 @@ $('#payBoxes').onclick = async e => {
     if (!(amount > 0)) return alert('اكتب مبلغ صحيح');
     const { error } = await sb.from('payments').update({ amount }).eq('id', ed.dataset.pedit);
     if (error) return alert('ماتعدلش: ' + error.message);
-    return renderDetail();
+    return loadAll();
   }
 };
 
@@ -668,7 +723,9 @@ $('#sScan').onkeydown = e => {
   if (e.key === 'Enter') { e.preventDefault(); pickPatient($('#sScan').value); }
 };
 
-  $('#sessForm').onsubmit = async e => {
+$('#sPat')?.addEventListener?.('change', () => {});
+
+$('#sessForm').onsubmit = async e => {
   e.preventDefault();
   const p = patients.find(x => x.id === sessPatient);
   if (!p) return say($('#sMsg'), 'اختار المريض الأول', true);
