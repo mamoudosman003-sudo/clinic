@@ -30,11 +30,11 @@ button.bad{background:transparent;color:var(--warn);border:1px solid var(--warn)
 .tabs button[aria-current="page"]{background:var(--soft);color:var(--accent);border-color:var(--accent)}
 .scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
-th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:start;white-space:nowrap;vertical-align:middle}
-th{color:var(--muted);font-size:13px;font-weight:600}
+th,td{padding:8px 6px;border:1px solid var(--line);text-align:start;vertical-align:top;font-size:13px}
+th{color:var(--muted);font-weight:600;background:#F6F5FB}
 .msg{font-size:14px;margin:10px 0 0;color:var(--muted);word-break:break-word}
 .err{color:var(--warn)}
-.ok{color:var(--accent)}
+.ok{color:var(--ok)}
 .hidden{display:none!important}
 body:not(.isAdmin) .adminOnly{display:none!important}
 body.readonly .writeOnly{display:none!important}
@@ -44,8 +44,6 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .stat b{display:block;font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}
 #kComm{color:var(--warm)}
 #kClinic{color:var(--accent)}
-
-/* الفلاتر والإجماليات */
 .fin{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
 .fin div{flex:1 1 180px;border-radius:12px;padding:10px 12px;background:#F6F5FB}
 .fin span{display:block;font-size:12px;color:var(--muted)}
@@ -56,8 +54,6 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .owe{color:var(--warn);font-weight:600}
 .cred{color:var(--ok);font-weight:600}
 .zero{color:var(--muted)}
-
-/* المربعات: 5 جنب بعض */
 .bx{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0 14px}
 .bx>div{border:1px solid var(--line);border-radius:10px;padding:6px 7px;background:#fff;font-size:12px;min-width:0}
 .bx b{display:block;font-size:13px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -65,8 +61,6 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .bx .acts{display:flex;gap:3px;margin-top:4px}
 .bx .acts button{padding:2px 5px;font-size:11px}
 .bx .none{grid-column:1/-1;color:var(--muted);font-size:14px;border:0;background:none;padding:6px 0}
-
-/* الكارت */
 .card{width:min(100%,440px);background:#fff;color:#1F1B4D;border-radius:20px;overflow:hidden;box-shadow:0 8px 24px rgba(31,27,77,.12);border:1px solid #E4E2F0}
 .chead{background:linear-gradient(135deg,#2A2370,#3D35B5);color:#fff;padding:16px 20px}
 .chead small{opacity:.8;font-size:12px}
@@ -90,20 +84,23 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;ma
 .segs{display:flex;flex-wrap:wrap;gap:4px}
 .segs i{width:14px;height:14px;border-radius:4px;background:#ECEBFA}
 .segs i.on{background:#3D35B5}
-.qr{display:none}
 @page{margin:8mm}
 @media print{body *{visibility:hidden}#printCard,#printCard *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printCard{position:absolute;inset:0 auto auto 0;border:0;box-shadow:none}}
 @media (max-width:640px){.ccode b{font-size:30px}.bx b{font-size:12px}}
-
 .pkg{background:#F6F5FB;border:1px dashed var(--line);border-radius:12px;padding:14px;margin-top:14px}
 ul.list{list-style:none;padding:0;margin:0 0 12px}
 ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
+.sched{width:100%;min-width:720px}
+.sched td{min-height:28px;height:28px;padding:0 4px}
+.sched td.tm{background:#F6F5FB;color:var(--muted);width:70px;white-space:nowrap}
+.sched td.bk{background:#EEF0FB}
+.sched td.bk.first{background:#DFDDF7;font-weight:600}
 </style>
 </head>
 <body>
 <main>
 
-<section id="loginView" class="panel" style="max-width:380px;margin:60px auto">
+  <section id="loginView" class="panel" style="max-width:380px;margin:60px auto">
   <h1>دخول العيادة</h1>
   <p class="sub">الإيميل وكلمة المرور اللي اتعملوا لك من صاحب النظام</p>
   <form id="loginForm" class="stack">
@@ -126,11 +123,11 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
   <nav class="tabs">
     <button data-tab="patients" aria-current="page">المرضى</button>
     <button data-tab="sessions">الجلسات</button>
+    <button data-tab="schedule">الجدول</button>
     <button data-tab="accounts" class="adminOnly">الحسابات</button>
     <button data-tab="doctors" class="adminOnly">الدكاترة</button>
   </nav>
 
-  
   <section id="tab-patients" class="tab">
     <div class="panel writeOnly">
       <h3>إضافة مريض</h3>
@@ -235,6 +232,34 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
         <tbody id="todayRows"></tbody>
       </table></div>
     </div>
+                                                           </section>
+
+  <section id="tab-schedule" class="tab hidden">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h3 style="margin:0">الجدول</h3>
+        <label style="flex:0 0 180px">اليوم<input type="date" id="schDay"></label>
+      </div>
+      <p class="sub">كل دكتور في عمود، والمواعيد من 9 الصبح لـ 11 بالليل. الجدول تنظيمي بس.</p>
+    </div>
+
+    <form id="schForm" class="panel writeOnly">
+      <h3>إضافة حجز</h3>
+      <div class="row">
+        <label>الدكتور<select id="schDoc" required></select></label>
+        <label>البداية<input type="time" id="schStart" min="09:00" max="23:00" required></label>
+        <label>المدة<select id="schDur"><option value="30">30 دقيقة</option><option value="60" selected>ساعة</option><option value="90">ساعة ونص</option></select></label>
+      </div>
+      <div class="row">
+        <label>الاسم (اسم كامل)<input id="schName" required placeholder="مثلًا: أحمد محمد علي"></label>
+        <button type="submit">إضافة الحجز</button>
+      </div>
+      <p id="schMsg" class="msg hidden"></p>
+    </form>
+
+    <div class="panel">
+      <div class="scroll"><table id="schTable" class="sched"></table></div>
+    </div>
   </section>
 
   <section id="tab-accounts" class="tab hidden">
@@ -285,7 +310,7 @@ ul.list li{padding:8px 0;border-bottom:1px solid var(--line)}
 
 </main>
 
-  <script>
+<script>
 const SUPABASE_URL = 'https://stgovppudfwdrsrylpoo.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z292cHB1ZGZ3ZHJzcnlscG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5Nzc5NTgsImV4cCI6MjEwOTU1Mzk1OH0.0zZL0U33QyW4FlEAT5B6vT1p3Tn8pPUVO3tVIRI1nfE';
 
@@ -302,10 +327,11 @@ const fmtDT = s => new Date(s).toLocaleString('ar-EG', { dateStyle: 'medium', ti
 const clamp = raw => Math.min(45, Math.max(30, Math.round(raw || 30)));
 const ROLE = { admin: 'مدير', reception: 'استقبال', doctor: 'دكتور' };
 const PAGE = 50;
+const SLOT_START = 9 * 60, SLOT_END = 23 * 60, STEP = 30;
 
 let me = null, patients = [], doctors = [], sessions = [], appts = [], current = null, sessPatient = null;
 let shown = PAGE, filt = 'all';
-let dbDoneCounts = {}, dbBal = {}, dbDoctorReport = [], dbPatientBilling = [];
+let dbDoneCounts = {}, dbBal = {}, dbDoctorReport = [], dbPatientBilling = [], schedItems = [];
 
 const say = (el, text, bad) => { el.textContent = text; el.classList.remove('hidden'); el.classList.toggle('err', !!bad); el.classList.toggle('ok', !bad); };
 const show = v => { $('#loginView').classList.toggle('hidden', v !== 'login'); $('#appView').classList.toggle('hidden', v !== 'app'); };
@@ -314,6 +340,8 @@ const doneOf = pid => dbDoneCounts[pid] || 0;
 const balOf = pid => dbBal[pid]?.balance || 0;
 const docById = id => doctors.find(d => d.id === id) || { name: '-', percent: 0 };
 const upcoming = pid => appts.filter(a => a.patient_id === pid && new Date(a.starts_at) >= new Date());
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const fmtMin = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
 
 function findPatient(term) {
   const q = term.trim();
@@ -330,6 +358,7 @@ function showTab(n) {
   $$('.tabs button').forEach(b => b.dataset.tab === n ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   if (n === 'sessions') { renderSessDoctors(); loadToday(); }
   if (n === 'accounts') loadAccounts();
+  if (n === 'schedule') { renderSchedDoctors(); loadSchedule(); }
 }
 
 async function enter() {
@@ -348,12 +377,14 @@ async function enter() {
   document.body.classList.toggle('isAdmin', prof.role === 'admin');
   document.body.classList.toggle('readonly', prof.role === 'doctor');
   $('#month').value = today().slice(0, 7);
+  $('#schDay').value = today();
+  $('#payDate').value = today();
   show('app');
   showTab('patients');
   await loadAll();
 }
 
-async function loadAll() {
+  async function loadAll() {
   const [p, d, a, dc, bl] = await Promise.all([
     sb.from('patients').select('id,card_code,name,phone,session_price,total_sessions,package_start,created_at').order('created_at', { ascending: false }),
     sb.from('doctors').select('id,name,percent,active').order('name'),
@@ -373,6 +404,7 @@ async function loadAll() {
   renderPatients();
   renderSessDoctors();
   renderDoctors();
+  renderSchedDoctors();
   if (current) await renderDetail();
 }
 
@@ -383,6 +415,17 @@ async function loadToday() {
   if (error) return alert('تعذر تحميل جلسات النهاردة: ' + error.message);
   sessions = data || [];
   renderToday();
+}
+
+async function loadSchedule() {
+  const day = $('#schDay').value || today();
+  const { data, error } = await sb.from('schedule_items')
+    .select('id,doctor_id,start_time,end_time,person_name,status')
+    .eq('day', day)
+    .order('start_time');
+  if (error) return say($('#schMsg'), 'تعذر تحميل الجدول: ' + error.message, true);
+  schedItems = data || [];
+  renderSchedule();
 }
 
 async function loadAccounts() {
@@ -446,7 +489,7 @@ function openPatient(id) {
   $('#detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-    async function renderDetail() {
+async function renderDetail() {
   const p = patients.find(x => x.id === current);
   if (!p) { $('#detail').classList.add('hidden'); current = null; return; }
   $('#detail').classList.remove('hidden');
@@ -491,7 +534,7 @@ function openPatient(id) {
       </div>
     </div>`;
 
-  $('#stmtBoxes').innerHTML = (st.data || []).map(x => {
+    $('#stmtBoxes').innerHTML = (st.data || []).map(x => {
     const inn = Number(x.money_in) > 0;
     return `<div>
       <b class="${inn ? 'cred' : 'owe'}">${inn ? '+' : '-'} ${money(inn ? x.money_in : x.money_out)}</b>
@@ -501,7 +544,6 @@ function openPatient(id) {
     </div>`;
   }).join('') || '<p class="none">لسه مفيش حركات</p>';
 
-  $('#payDate').value = $('#payDate').value || today();
   $('#payBoxes').innerHTML = (pays.data || []).map(x => `<div>
       <b>${money(x.amount)}</b>
       <small>${fmtD(x.paid_on)}</small>
@@ -525,6 +567,54 @@ function renderSessDoctors() {
   if (cur) $('#sDoc').value = cur;
   if (!$('#sDate').value) $('#sDate').value = today();
   showSessInfo();
+}
+
+function renderSchedDoctors() {
+  const cur = $('#schDoc').value;
+  $('#schDoc').innerHTML = doctors.filter(d => d.active).map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')
+    || '<option value="">ضيف دكتور الأول</option>';
+  if (cur) $('#schDoc').value = cur;
+}
+
+function renderSchedule() {
+  const activeDocs = doctors.filter(d => d.active);
+  if (!activeDocs.length) { $('#schTable').innerHTML = '<tr><td>ضيف دكاترة الأول</td></tr>'; return; }
+
+  const slots = [];
+  for (let m = SLOT_START; m < SLOT_END; m += STEP) slots.push(m);
+
+  const bookedAt = {};
+  schedItems.forEach(it => {
+    const s = toMin(it.start_time.slice(0, 5)), e = toMin(it.end_time.slice(0, 5));
+    for (let m = s; m < e; m += STEP) {
+      const key = it.doctor_id + '|' + m;
+      bookedAt[key] = { item: it, first: m === s };
+    }
+  });
+
+  let html = '<thead><tr><th class="tm">الوقت</th>' + activeDocs.map(d => `<th>${esc(d.name)}</th>`).join('') + '</tr></thead><tbody>';
+  slots.forEach(m => {
+    html += `<tr><td class="tm">${fmtMin(m)}</td>`;
+    activeDocs.forEach(d => {
+      const hit = bookedAt[d.id + '|' + m];
+      if (hit) {
+        if (hit.first) {
+          const it = hit.item;
+          const label = `${esc(it.person_name)}<br><small>${fmtMin(toMin(it.start_time.slice(0,5)))} - ${fmtMin(toMin(it.end_time.slice(0,5)))} | ${statusLabel(it.status)}</small>`;
+          html += `<td class="bk first" rowspan="${(toMin(it.end_time.slice(0,5)) - toMin(it.start_time.slice(0,5))) / STEP}">${label}<div class="writeOnly" style="margin-top:4px"><button class="bad" data-sdel="${it.id}">مسح</button></div></td>`;
+        }
+      } else {
+        html += '<td></td>';
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  $('#schTable').innerHTML = html;
+}
+
+function statusLabel(s) {
+  return { booked: 'محجوزة', done: 'تمت', cancelled: 'ملغية', missed: 'ماجاش' }[s] || s;
 }
 
 function showSessInfo() {
@@ -579,9 +669,9 @@ async function updDoctor(id, patch) {
   const { error } = await sb.from('doctors').update(patch).eq('id', id);
   if (error) return alert('ماتحفظش: ' + error.message);
   await loadAll();
-}
+  }
 
-    $('#loginForm').onsubmit = async e => {
+  $('#loginForm').onsubmit = async e => {
   e.preventDefault();
   $('#loginMsg').classList.add('hidden');
   const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#pass').value });
@@ -592,7 +682,7 @@ async function updDoctor(id, patch) {
 
 $('#logout').onclick = async () => {
   await sb.auth.signOut();
-  me = null; patients = []; doctors = []; sessions = []; appts = []; current = null; sessPatient = null;
+  me = null; patients = []; doctors = []; sessions = []; appts = []; current = null; sessPatient = null; schedItems = [];
   dbDoneCounts = {}; dbBal = {}; dbDoctorReport = []; dbPatientBilling = [];
   $('#detail').classList.add('hidden');
   show('login');
@@ -705,7 +795,7 @@ $('#addSessBtn').onclick = async () => {
   await loadAll();
 };
 
-$('#apptAdd').onclick = async () => {
+  $('#apptAdd').onclick = async () => {
   const v = $('#apptIn').value;
   if (!v || !current) return;
   const { error } = await sb.from('appointments').insert({
@@ -722,8 +812,6 @@ $('#sFind').onclick = () => pickPatient($('#sScan').value);
 $('#sScan').onkeydown = e => {
   if (e.key === 'Enter') { e.preventDefault(); pickPatient($('#sScan').value); }
 };
-
-$('#sPat')?.addEventListener?.('change', () => {});
 
 $('#sessForm').onsubmit = async e => {
   e.preventDefault();
@@ -744,6 +832,48 @@ $('#sessForm').onsubmit = async e => {
   await loadAll();
   await loadToday();
   showSessInfo();
+};
+
+$('#schDay').onchange = loadSchedule;
+
+$('#schForm').onsubmit = async e => {
+  e.preventDefault();
+  const doctor_id = $('#schDoc').value;
+  const day = $('#schDay').value || today();
+  const startStr = $('#schStart').value;
+  const dur = +$('#schDur').value;
+  const name = $('#schName').value.trim();
+  if (!doctor_id) return say($('#schMsg'), 'ضيف دكتور الأول', true);
+  if (!startStr) return say($('#schMsg'), 'اختار وقت البداية', true);
+  const startM = toMin(startStr);
+  const endM = startM + dur;
+  if (startM < SLOT_START || endM > SLOT_END) return say($('#schMsg'), 'المواعيد من 9 الصبح لـ 11 بالليل بس', true);
+
+  const clash = schedItems.some(it => it.doctor_id === doctor_id && toMin(it.start_time.slice(0,5)) < endM && toMin(it.end_time.slice(0,5)) > startM);
+  if (clash) return say($('#schMsg'), 'الدكتور ده عنده حجز في الوقت ده', true);
+
+  const { error } = await sb.from('schedule_items').insert({
+    clinic_id: me.clinicId,
+    doctor_id,
+    day,
+    start_time: startStr,
+    end_time: fmtMin(endM),
+    person_name: name,
+    status: 'booked'
+  });
+  if (error) return say($('#schMsg'), 'ماتضافش: ' + error.message, true);
+  say($('#schMsg'), 'اتضاف الحجز', false);
+  $('#schName').value = '';
+  await loadSchedule();
+};
+
+$('#schTable').onclick = async e => {
+  const b = e.target.closest('[data-sdel]');
+  if (!b) return;
+  if (!confirm('تمسح الحجز ده من الجدول؟')) return;
+  const { error } = await sb.from('schedule_items').delete().eq('id', b.dataset.sdel);
+  if (error) return alert('ماتمسحش: ' + error.message);
+  await loadSchedule();
 };
 
 document.addEventListener('change', async e => {
